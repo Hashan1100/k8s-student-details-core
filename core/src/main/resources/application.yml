@@ -1,0 +1,14 @@
+server:
+  port: 10000
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: none
+    database-platform: org.hibernate.dialect.MySQLDialect
+    show-sql: false
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    password: password
+    url: ${MY_SQL_URL:jdbc:mysql://127.0.0.1:33080/student_db?useSSL=false&autoReconnect=true&useUnicode=true&character_set_server=utf8m&allowPublicKeyRetrieval=true}
+    username: user
