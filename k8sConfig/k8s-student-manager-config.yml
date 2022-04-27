@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-student-manager
+  labels:
+    app: k8s-student-details-core
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: k8s-student-details-core
+  template:
+    metadata:
+      labels:
+        app: k8s-student-details-core
+    spec:
+      containers:
+        - name: k8s-student-details-core
+          image: k8s-student-details-core:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 10000
+          env:
+            - name: USER_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: mysql-user
+            - name: USER_PWD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: mysql-password
+            - name: DB_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: mysql-config
+                  key: mysql-url
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: k8s-student-manager-service
+spec:
+  type: NodePort
+  selector:
+    app: k8s-student-details-core
+  ports:
+    - protocol: TCP
+      port: 10000
+      targetPort: 10000
+      nodePort: 30200
