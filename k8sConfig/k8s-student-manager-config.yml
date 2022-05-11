@@ -36,6 +36,11 @@ spec:
                 configMapKeyRef:
                   name: mysql-config
                   key: mysql-url
+          resources:
+            limits:
+              cpu: 500m
+            requests:
+              cpu: 200m
 ---
 apiVersion: v1
 kind: Service
