@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: k8s-student-manager-service
+spec:
+  type: NodePort
+  ports:
+    - protocol: TCP
+      port: 10000
+      targetPort: 10000
+      nodePort: 30200
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: k8s-student-manager
+  labels:
+    app: k8s-student-details-core
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: k8s-student-details-core
+  serviceName: k8s-student-manager-service
+  template:
+    metadata:
+      labels:
+        app: k8s-student-details-core
+    spec:
+      containers:
+        - name: k8s-student-details-core
+          image: k8s-student-details-core:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 10000
+          env:
+            - name: USER_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: mysql-user
+            - name: USER_PWD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: mysql-password
+            - name: DB_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: mysql-config
+                  key: mysql-url
+          volumeMounts:
+            - name: core
+              mountPath: /tmp/core/
+          resources:
+            limits:
+              cpu: 500m
+            requests:
+              cpu: 200m
+      volumes:
+        - name: core
+          persistentVolumeClaim:
+            claimName: student-core-persistent
